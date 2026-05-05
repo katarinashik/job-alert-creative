@@ -48,7 +48,7 @@ def _scrape(
 ) -> Iterator[Job]:
     try:
         kwargs = dict(
-            site_name=["linkedin", "indeed"],
+            site_name=["linkedin", "indeed", "glassdoor"],
             search_term=keyword,
             location=location,
             results_wanted=50,

@@ -14,7 +14,7 @@ import notifier
 from filter import (is_relevant, is_valid_location, is_valid_salary,
                     is_valid_description, is_valid_domain, score)
 from telegram_commands import process_commands, load_state, save_state
-from sources import france_travail, jobspy_scraper, welcome_jungle, apec
+from sources import france_travail, jobspy_scraper, welcome_jungle, apec, cadremploi, hellowork
 
 PARIS = ZoneInfo("Europe/Paris")
 
@@ -219,6 +219,10 @@ def run() -> None:
         welcome_jungle.fetch(
             settings.SEARCH_KEYWORDS, settings.OFFICE_LOCATIONS, settings.MAX_JOB_AGE_HOURS),
         apec.fetch(
+            settings.SEARCH_KEYWORDS, settings.OFFICE_LOCATIONS, settings.MAX_JOB_AGE_HOURS),
+        cadremploi.fetch(
+            settings.SEARCH_KEYWORDS, settings.OFFICE_LOCATIONS, settings.MAX_JOB_AGE_HOURS),
+        hellowork.fetch(
             settings.SEARCH_KEYWORDS, settings.OFFICE_LOCATIONS, settings.MAX_JOB_AGE_HOURS),
     ]
 
