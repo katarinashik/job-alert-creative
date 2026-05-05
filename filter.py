@@ -6,6 +6,53 @@ from notifier import Job
 
 MIN_DESCRIPTION_LENGTH = 200
 
+# Signals that a job is actually located in Paris/IDF (not truly remote)
+_PARIS_SIGNALS = [
+    " paris ", "paris,", "paris\n", "(paris)", "paris 1", "paris 2",
+    "paris 3", "paris 4", "paris 5", "paris 6", "paris 7", "paris 8",
+    "paris 9", "paris 10", "paris 11", "paris 12", "paris 13",
+    "paris 14", "paris 15", "paris 16", "paris 17", "paris 18",
+    "paris 19", "paris 20",
+    "75001", "75002", "75003", "75004", "75005", "75006", "75007",
+    "75008", "75009", "75010", "75011", "75012", "75013", "75014",
+    "75015", "75016", "75017", "75018", "75019", "75020",
+    "île-de-france", "ile-de-france", "idf",
+    "levallois", "boulogne-billancourt", "neuilly-sur-seine",
+    "la défense", "la defense",
+]
+
+# Signals that override: job is genuinely fully remote
+_FULL_REMOTE_SIGNALS = [
+    "100% remote", "100% télétravail", "full remote", "fully remote",
+    "télétravail complet", "full télétravail", "remote first",
+    "remote-first", "remote only", "entièrement en télétravail",
+    "100 % télétravail", "poste 100%",
+]
+
+
+def _is_paris_only(job: Job) -> bool:
+    """
+    True when a job claims remote but description/location strongly indicate
+    it's actually a Paris-area office role (LinkedIn often mislabels these).
+    """
+    loc = (job.location or "").lower()
+
+    # Location field itself says Paris and NOT our target cities
+    if "paris" in loc and not any(c.lower() in loc for c in settings.OFFICE_LOCATIONS):
+        return True
+
+    desc = (job.description or "").lower()
+    if not desc:
+        return False
+
+    # Explicit full-remote language overrides any Paris mention
+    if any(sig in desc for sig in _FULL_REMOTE_SIGNALS):
+        return False
+
+    # Check the first 400 chars (job header) where location is usually listed
+    header = desc[:400]
+    return any(sig in header for sig in _PARIS_SIGNALS)
+
 
 def is_relevant(title: str, company: str) -> bool:
     t = title.lower()
@@ -42,6 +89,9 @@ def is_valid_location(job: Job) -> bool:
             return False
 
     if job.remote:
+        # LinkedIn/jobspy is_remote flag is unreliable — cross-check description
+        if _is_paris_only(job):
+            return False
         return True
     if any(city.lower() in loc for city in settings.OFFICE_LOCATIONS):
         return True
