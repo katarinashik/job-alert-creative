@@ -233,6 +233,10 @@ def run() -> None:
     skipped_spam = 0
     skipped_domain = 0
     seen_desc_hashes: set[str] = set()
+    # In-memory fingerprint dedup: same title+company from multiple sources
+    # won't both make it into candidates (is_new only checks the DB, which
+    # is only updated after sending — so cross-source dupes slip through otherwise)
+    seen_candidate_fps: set[str] = set()
 
     for source in sources:
         for job in source:
@@ -258,6 +262,10 @@ def run() -> None:
                 continue
             if not storage.is_new(job.id, job.title, job.company):
                 continue
+            fp = f"{job.title.lower().strip()}|{job.company.lower().strip()}"
+            if fp in seen_candidate_fps:
+                continue
+            seen_candidate_fps.add(fp)
             candidates.append((score(job.title, job.company), job))
 
     # Sort: preferred companies (score 2+) first, then by score desc, then by date
