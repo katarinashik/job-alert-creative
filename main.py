@@ -12,7 +12,7 @@ import settings
 import storage
 import notifier
 from filter import (is_relevant, is_valid_location, is_valid_salary,
-                    is_valid_description, is_valid_domain, score)
+                    is_valid_description, is_valid_domain, has_video_signal, score)
 from telegram_commands import process_commands, load_state, save_state
 from sources import france_travail, jobspy_scraper, welcome_jungle, apec, cadremploi, hellowork
 
@@ -228,14 +228,12 @@ def run() -> None:
 
     candidates: list[tuple[int, notifier.Job]] = []
     skipped_relevance = 0
+    skipped_video = 0
     skipped_location = 0
     skipped_salary = 0
     skipped_spam = 0
     skipped_domain = 0
     seen_desc_hashes: set[str] = set()
-    # In-memory fingerprint dedup: same title+company from multiple sources
-    # won't both make it into candidates (is_new only checks the DB, which
-    # is only updated after sending — so cross-source dupes slip through otherwise)
     seen_candidate_fps: set[str] = set()
 
     for source in sources:
@@ -243,6 +241,10 @@ def run() -> None:
             if not is_relevant(job.title, job.company):
                 skipped_relevance += 1
                 print(f"[filter:relevance] {job.title} @ {job.company}")
+                continue
+            if not has_video_signal(job):
+                skipped_video += 1
+                print(f"[filter:video] {job.title} @ {job.company}")
                 continue
             if not is_valid_location(job):
                 skipped_location += 1
@@ -304,14 +306,15 @@ def run() -> None:
     print(
         f"Done. Sent {sent} alert(s). "
         f"Filtered: {skipped_relevance} irrelevant, "
+        f"{skipped_video} no-video-signal, "
         f"{skipped_location} wrong location, "
         f"{skipped_salary} low salary, "
         f"{skipped_domain} wrong domain, "
         f"{skipped_spam} spam/duplicate."
     )
 
-    _update_daily_stats(state, sent, skipped_relevance, skipped_location,
-                        skipped_salary, skipped_spam)
+    _update_daily_stats(state, sent, skipped_relevance + skipped_video,
+                        skipped_location, skipped_salary, skipped_spam)
     _update_weekly_stats(state, sent)
     _maybe_send_daily_summary(state, token, chat_id)
     _maybe_send_weekly_report(state, token, chat_id)

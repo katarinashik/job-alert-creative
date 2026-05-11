@@ -1,51 +1,44 @@
 SEARCH_KEYWORDS = [
-    # CONTENT / SOCIAL MEDIA
-    "content manager",
-    "content strategist",
-    "social media manager",
-    "social media strategist",
-    "community manager",
-    "brand content manager",
-    "digital content manager",
-    "head of content",
-    "responsable contenu",
-    "chargé de contenu",
-    "chargée de contenu",
-    "chargé des réseaux sociaux",
-    "responsable réseaux sociaux",
-    # CHEF DE PROJET / PROJECT MANAGER (domain-qualified only)
-    "chef de projet digital",
-    "chef de projet contenu",
-    "chef de projet marketing",
-    "chef de projet médias",
-    "chef de projet communication",
-    "chef de projet créatif",
-    "project manager digital",
-    "project manager content",
-    "project manager media",
-    "project manager marketing",
-    "project manager creative",
-    "project manager social media",
-    # OPERATIONS
-    "content operations manager",
-    "operations manager digital",
-    "responsable opérations digitales",
-    "media operations manager",
+    # VIDEO EDITOR / MONTAGE
+    "monteur vidéo",
+    "video editor",
+    "montage vidéo",
+    "chef montage",
+    "responsable montage",
+    # MOTION DESIGN
+    "motion designer",
+    "motion design",
+    "graphiste motion",
+    # HEAD OF VIDEO / PRODUCTION
+    "head of video",
+    "responsable vidéo",
+    "responsable production vidéo",
+    "video production manager",
+    "video production lead",
     "post-production manager",
-    "production manager digital",
-    "workflow manager",
-    "responsable production digitale",
-    # VIDEO / POST-PRODUCTION
     "responsable post-production",
     "post-production supervisor",
-    "video production manager",
-    # MARKETING DIGITAL
-    "digital marketing manager",
-    "chargé de marketing digital",
-    "responsable marketing digital",
-    "growth manager",
-    "traffic manager",
-    "performance marketing manager",
+    # CREATIVE PROJECT MANAGER (studio / video)
+    "chef de projet vidéo",
+    "chef de projet video",
+    "chef de projet créatif",
+    "creative project manager",
+    "creative studio manager",
+    # SOCIAL MEDIA WITH VIDEO FOCUS
+    "social media manager video",
+    "social media video",
+    "content creator video",
+    "créateur de contenu vidéo",
+    # PLATFORM-SPECIFIC
+    "youtube manager",
+    "tiktok manager",
+    "short form content",
+    "short-form content",
+    "responsable contenu vidéo",
+    # BROADER (caught by video signal filter)
+    "social media manager",
+    "community manager",
+    "content manager",
 ]
 
 OFFICE_LOCATIONS = ["Montpellier", "Lyon"]
@@ -67,90 +60,115 @@ BLOCKED_DESCRIPTION_PHRASES = [
     "submit your cv for consideration",
 ]
 
-# Block contract types and out-of-range seniority levels
+# Block contract types, intérim, and C-level
 BLOCKED_TITLE_WORDS = [
-    # Contract types to ignore (French + English)
+    # Contract types (FR + EN)
     "stage", "stagiaire",
     "alternance", "alternant", "alternante",
     "apprentissage", "apprenti", "apprentie",
     "apprenticeship", "apprentice",
     "internship", "intern",
+    "intérim", "interim", "interimaire", "intérimaire",
     # Too junior
     "junior",
     "débutant", "debutant",
-    # Too senior (C-level / director)
+    # Too senior
     "director", "directeur", "directrice",
     "vp",
     "c-level",
 ]
 
-# Group A — role type (title must contain at least one, space-padded for word boundary)
+# Group A — role type
 GROUP_A_WORDS = [
     " manager ", " responsable ", " chef ", " chargé ", " chargée ",
     " coordinateur ", " coordinatrice ", " coordinator ",
     " producer ", " producteur ", " productrice ",
     " superviseur ", " supervisor ",
     " head ", " project ", " projet ",
-    " editor ", " éditeur ", " editeur ",
+    " editor ", " éditeur ", " editeur ", " monteur ", " monteuse ",
+    " créateur ", " créatrice ",
     " operations ", " opérations ",
     " production ",
+    " designer ",
 ]
 
-# Group B — domain (title must contain at least one, space-padded)
+# Group B — domain
 GROUP_B_WORDS = [
+    " video ", " vidéo ",
+    " motion ",
     " content ", " contenu ",
     " digital ", " social ",
     " media ", " médias ", " medias ",
-    " marketing ", " community ", " brand ",
-    " editorial ", " éditorial ",
-    " video ", " vidéo ",
-    " workflow ", " creative ", " créatif ", " créative ",
+    " community ", " brand ",
+    " creative ", " créatif ", " créative ",
     " campaign ", " campagne ",
     "post-production",
     "réseaux sociaux", "reseaux sociaux",
+    " youtube ", " tiktok ",
+    " montage ", " studio ",
 ]
 
-# Special rule: if "project manager" or "chef de projet" in title,
-# these domain words are required (stricter than GROUP_B)
+# Special PM rule
 PM_INDICATORS = ["project manager", "chef de projet"]
 PM_DOMAIN_WORDS = [
-    " digital ", " content ", " contenu ",
-    " media ", " médias ", " medias ",
-    " marketing ", " creative ", " créatif ", " créative ",
-    " social ", " brand ", " communication ",
+    " video ", " vidéo ", " motion ", " creative ", " créatif ",
+    " content ", " contenu ", " media ", " studio ",
+    " social ", " brand ", " digital ",
 ]
 
-# Score boost: +1 per matching term in description
+# ── VIDEO SIGNAL FILTER ──────────────────────────────────────────────────────
+# At least one of these must appear in title OR description.
+# Blocks community managers, content marketers, SEO etc. without video focus.
+VIDEO_SIGNAL_TERMS = [
+    "montage", "monteur", "monteuse",
+    "video editor", "video editing",
+    "motion design", "motion designer",
+    "after effects", "premiere pro", "davinci", "final cut",
+    "post-production", "post production",
+    "production vidéo", "video production",
+    "short-form", "short form",
+    "youtube", "tiktok", "reels",
+    "head of video", "responsable vidéo",
+    "creative studio",
+    "vidéo",
+]
+
+# ── EXCLUDED JOB TYPES ───────────────────────────────────────────────────────
+# Blocked if these appear in title (pure non-video roles)
+BLOCKED_ROLE_KEYWORDS = [
+    "seo", "sea", "sem",
+    "copywriter", "copywriting",
+    "rédacteur", "rédactrice", "rédaction",
+    "b2b saas", "field marketing", "marketing enterprise",
+    "account manager", "account executive",
+    "growth hacker",
+]
+
+# ── SCORE BOOST ─────────────────────────────────────────────────────────────
 SCORE_BOOST_TERMS = [
-    "content", "contenu", "social media", "réseaux sociaux",
-    "digital", "marketing", "video", "vidéo", "montage",
-    "workflow", "operations", "opérations", "kpi",
-    "analytics", "performance", "engagement", "reach",
-    "community", "brand", "editorial", "éditorial",
-    "production", "post-production", "creator", "créateur",
-    "notion", "slack", "monday", "asana", "meta", "instagram",
-    "youtube", "tiktok", "facebook", "ab test", "a/b test",
-    "dashboard", "reporting", "audience", "retention",
-    "strategy", "stratégie", "campaign", "campagne",
+    "montage", "monteur", "video editor",
+    "motion design", "after effects", "premiere pro", "davinci",
+    "post-production", "production vidéo",
+    "short-form", "short form", "vertical video",
+    "youtube", "tiktok", "reels", "instagram",
+    "head of video", "creative studio",
+    "vidéo", "workflow", "pipeline",
+    "kpi", "analytics", "audience", "reach", "engagement",
+    "notion", "asana", "monday", "frame.io", "airtable",
 ]
 
-# +2 bonus for profile-matched companies (bypass no filters)
+# +2 for profile-matched companies
 PREFERRED_COMPANIES = [
     "webedia", "dailymotion", "brut", "konbini",
     "humanoid", "reworld media", "reworld",
-    "cegid", "agicap",
-    "cdiscount", "fnac darty", "fnac",
-    "gl events", "seb group", " seb ",
-    "euronews",
-    "doctolib", "payfit", "swile",
-    "partoo", "livestorm",
-    "orange",
-    "capgemini",
     "jellysmack", "biomerieux", "bioxmerieux",
-    "artefact",
+    "euronews", "orange",
+    "gl events", "seb group",
+    "artefact", "capgemini",
+    "doctolib", "swile", "partoo",
 ]
 
-# Blocked irrelevant domains (checked in title + description)
+# Blocked domains (title + description)
 BLOCKED_DOMAIN_KEYWORDS = [
     "monétique", "monetique",
     " iard ",
@@ -165,7 +183,6 @@ BLOCKED_DOMAIN_KEYWORDS = [
     " btp ",
 ]
 
-# Rejected cities (even for "remote" — different jurisdiction or too far)
 BLOCKED_LOCATION_KEYWORDS = [
     "luxembourg",
     "niort",
@@ -174,5 +191,5 @@ BLOCKED_LOCATION_KEYWORDS = [
     "limoges",
 ]
 
-# Minimum annual salary to show (if salary is specified)
-MIN_SALARY_EUR = 39_000
+# Minimum annual salary (if stated) — 35k for video roles
+MIN_SALARY_EUR = 35_000

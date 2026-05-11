@@ -67,6 +67,11 @@ def is_relevant(title: str, company: str) -> bool:
         if re.search(rf"\b{re.escape(word.strip())}\b", t):
             return False
 
+    # Block pure non-video roles (SEO, copywriting, B2B SaaS, etc.)
+    for kw in settings.BLOCKED_ROLE_KEYWORDS:
+        if kw in t:
+            return False
+
     has_role = any(w in padded for w in settings.GROUP_A_WORDS)
     has_domain = any(w in padded for w in settings.GROUP_B_WORDS)
 
@@ -79,6 +84,13 @@ def is_relevant(title: str, company: str) -> bool:
             return False
 
     return True
+
+
+def has_video_signal(job: Job) -> bool:
+    """Title OR description must contain at least one video-specific term.
+    Blocks community managers, content marketers, SEO etc. without video focus."""
+    combined = f"{job.title} {job.description or ''}".lower()
+    return any(term in combined for term in settings.VIDEO_SIGNAL_TERMS)
 
 
 def is_valid_location(job: Job) -> bool:
