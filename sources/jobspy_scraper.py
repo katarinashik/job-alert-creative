@@ -24,17 +24,19 @@ def fetch(
     seen_ids: set[str] = set()
 
     for keyword in keywords:
-        # Remote search: pass is_remote=True so LinkedIn filters for remote jobs only
+        # Remote search: LinkedIn + Glassdoor only — Indeed returns mostly Paris for France-wide
         yield from _scrape(
             scrape_jobs, keyword, REMOTE_LOCATION, max_age_hours,
             seen_ids, is_remote_search=True,
+            sites=["linkedin", "glassdoor"],
         )
-        # Office searches in target cities (no remote filter)
+        # Office searches in target cities — Indeed included, city filter keeps it relevant
         for loc in office_locations:
             if loc in OFFICE_SEARCH_LOCATIONS:
                 yield from _scrape(
                     scrape_jobs, keyword, OFFICE_SEARCH_LOCATIONS[loc], max_age_hours,
                     seen_ids, is_remote_search=False,
+                    sites=["linkedin", "indeed", "glassdoor"],
                 )
 
 
@@ -45,10 +47,11 @@ def _scrape(
     max_age_hours: int,
     seen_ids: set,
     is_remote_search: bool,
+    sites: list[str] | None = None,
 ) -> Iterator[Job]:
     try:
         kwargs = dict(
-            site_name=["linkedin", "glassdoor"],  # Indeed excluded: returns mostly Paris jobs
+            site_name=sites or ["linkedin", "glassdoor"],
             search_term=keyword,
             location=location,
             results_wanted=50,
