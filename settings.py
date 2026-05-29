@@ -86,10 +86,11 @@ GROUP_A_WORDS = [
     " superviseur ", " supervisor ",
     " head ", " project ", " projet ",
     " editor ", " éditeur ", " editeur ", " monteur ", " monteuse ",
-    " créateur ", " créatrice ",
+    " créateur ", " créatrice ", " creator ",
+    " strategist ", " stratège ",
     " operations ", " opérations ",
     " production ",
-    " designer ",
+    " designer ", " specialist ", " spécialiste ",
 ]
 
 # Group B — domain

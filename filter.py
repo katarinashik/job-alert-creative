@@ -87,9 +87,16 @@ def is_relevant(title: str, company: str) -> bool:
 
 
 def has_video_signal(job: Job) -> bool:
-    """Title OR description must contain at least one video-specific term.
-    Blocks community managers, content marketers, SEO etc. without video focus."""
-    combined = f"{job.title} {job.description or ''}".lower()
+    """
+    Returns True if:
+    - Title contains 'content' / 'contenu' (all content roles pass without video requirement)
+    - OR title/description contains at least one video-specific term
+    """
+    title = job.title.lower()
+    # All "content X" roles pass regardless of video signal
+    if "content" in title or "contenu" in title:
+        return True
+    combined = f"{title} {(job.description or '').lower()}"
     return any(term in combined for term in settings.VIDEO_SIGNAL_TERMS)
 
 
@@ -108,8 +115,8 @@ def is_valid_location(job: Job) -> bool:
     if any(city.lower() in loc for city in settings.OFFICE_LOCATIONS):
         return True
     if loc in ("france", ""):
-        title = (job.title or "").lower()
-        return any(city.lower() in title for city in settings.OFFICE_LOCATIONS)
+        text = f"{job.title or ''} {job.description or ''}".lower()
+        return any(city.lower() in text for city in settings.OFFICE_LOCATIONS)
     return False
 
 
